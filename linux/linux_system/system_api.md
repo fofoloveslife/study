@@ -98,5 +98,156 @@ int ftruncate(int fd, off_t length); //truncate () 和 ftruncate () 两个函数
 //path文件名
 //fd文件描述符
 //length文件最终大小
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int stat(const char *pathname, struct stat *buf);
+int lstat(const char *pathname, struct stat *buf); //lstat (): 得到的是软连接文件本身的属性信息stat (): 得到的是软链接文件关联的文件的属性信息
+//pathname文件名
+//buf传出参数，传出文件信息
+struct stat {
+    dev_t          st_dev;        	// 文件的设备编号
+    ino_t          st_ino;        	// inode节点
+    mode_t         st_mode;      		// 文件的类型和存取的权限, 16位整形数  -> 常用
+    nlink_t        st_nlink;     	// 连到该文件的硬连接数目，刚建立的文件值为1
+    uid_t          st_uid;       	// 用户ID
+    gid_t          st_gid;       	// 组ID
+    dev_t          st_rdev;      	// (设备类型)若此文件为设备文件，则为其设备编号
+    off_t          st_size;      	// 文件字节数(文件大小)   --> 常用
+    blksize_t      st_blksize;   	// 块大小(文件系统的I/O 缓冲区大小)
+    blkcnt_t       st_blocks;    	// block的块数
+    time_t         st_atime;     	// 最后一次访问时间
+    time_t         st_mtime;     	// 最后一次修改时间(文件内容)
+    time_t         st_ctime;     	// 最后一次改变时间(指属性)
+};
+
+// 类型是存储在结构体的这个成员中: mode_t  st_mode;  
+// 这些宏函数中的m 对应的就是结构体成员  st_mode
+// 宏函数返回值: 是对应的类型返回-> 1, 不是对应类型返回0
+struct stat mystat;
+
+//宏函数判断文件类型
+S_ISREG(mystat.st_mode) - 普通文件
+S_ISDIR(mystat.st_mode) - 目录
+S_ISCHR(mystat.st_mode) - 字符设备
+S_ISBLK(mystat.st_mode) - 块设备
+S_ISFIFO(mystat.st_mode)- 管道
+S_ISLNK(mystat.st_mode) - 软连接
+S_ISSOCK(mystat.st_mode)- 本地套接字文件
+
+//与操作判断文件类型
+switch(st.st_mode & S_IFMT)
+        case S_IFLNK:
+            perms[0] = 'l';
+            break;
+        case S_IFDIR:
+            perms[0] = 'd';
+            break;
+        case S_IFREG:
+            perms[0] = '-';
+            break;
+        case S_IFBLK:
+            perms[0] = 'b';
+            break;
+        case S_IFCHR:
+            perms[0] = 'c';
+            break;
+        case S_IFSOCK:
+            perms[0] = 's';
+            break;
+        case S_IFIFO:
+            perms[0] = 'p';
+            break;
+        default:
+            perms[0] = '?';
+            break;
+    
+//判断文件的操作权限
+myst.st_mode & S_IRUSR
+myst.st_mode & S_IWUSR
+myst.st_mode & S_IXUSR
+    
+#include <unistd.h>
+int dup(int oldfd);//复制文件描述符
+//成功返回新的文件描述符，失败返回-1
+
+#include <unistd.h>
+// 1. 文件描述符的复制, 和dup是一样的
+// 2. 能够重定向文件描述符
+// 	- 重定向: 改变文件描述符和文件的关联关系, 和新的文件建立关联关系, 和原来的文件断开关联关系
+int dup2(int oldfd, int newfd);
+//成功返回新的文件描述符，失败返回-1
+
+#include <unistd.h>
+#include <fcntl.h>
+
+int fcntl(int fd, int cmd, ... /* arg */ );
+//fd文件描述符
+//cmd取值
+//F_DUPFD	复制一个已经存在的文件描述符与dup一样 成功返回新文件描述符，失败返回-1
+//F_GETFL	获取文件的状态标志 成功返回文件的flag，失败返回-1
+//F_SETFL	设置文件的状态标志 成功返回文件的flag，失败返回-1
+//不是所有的 flag 属性都能被动态修改，只能修改如下状态标志: O_APPEND, O_NONBLOCK, O_SYNC, O_ASYNC, O_RSYNC 等。
+
+#include <sys/types.h>
+#include <dirent.h>
+// 打开目录
+DIR *opendir(const char *name);
+//成功返回目录结构体指针，失败返回NULL
+//name目录名字
+
+
+
+// 读目录
+#include <dirent.h>
+struct dirent *readdir(DIR *dirp);
+//成功返回文件实体指针，失败返回NULL
+
+struct dirent {
+    ino_t          d_ino;       /* 文件对应的inode编号, 定位文件存储在磁盘的那个数据块上 */
+    off_t          d_off;       /* 文件在当前目录中的偏移量 */
+    unsigned short d_reclen;    /* 文件名字的实际长度 */
+    unsigned char  d_type;      /* 文件的类型, linux中有7中文件类型 */
+    char           d_name[256]; /* 文件的名字 */
+};
+
+//关于结构体中的文件类型 d_type，可使用的宏值如下：
+
+//DT_BLK：块设备文件
+//DT_CHR：字符设备文件
+//DT_DIR：目录文件
+//DT_FIFO ：管道文件
+//DT_LNK：软连接文件
+//DT_REG ：普通文件
+//DT_SOCK：本地套接字文件
+//DT_UNKNOWN：无法识别的文件类型
+
+// 关闭目录, 参数是 opendir() 的返回值
+int closedir(DIR *dirp);
+//成功返回0，失败返回-1
+
+// 遍历目录可以opendir 再循环readdir 也可以使用以下函数
+#include <dirent.h> 
+int scandir(const char *dirp, 
+            struct dirent ***namelist,
+            int (*filter)(const struct dirent *),
+            int (*compar)(const struct dirent **, const struct dirent **));
+//成功返回匹配的文件个数，失败返回-1
+//dirp: 需要遍历的目录的名字
+//namelist: 三级指针，传出参数，需要在指向的地址中存储遍历目录得到的所有文件的信息
+//filter: 函数指针，指针指向的函数就是回调函数，需要在自定义函数中指定如果过滤目录中的文件，如果不对目录中的文件进行过滤, 该函数指针指定为NULL即可，如果自己指定过滤函数, 满足条件要返回1, 否则返回 0
+//compar: 函数指针，对过滤得到的文件进行排序，可以使用提供的两种排序方式: alphasort: 根据文件名进行排序 versionsort: 根据版本进行排序
+int alphasort(const struct dirent **a, const struct dirent **b);
+int versionsort(const struct dirent **a, const struct dirent **b);
+    struct dirent **namelist = NULL;
+    int num = scandir("/fofo", &namelist, istrue, alphasort);
+     for(int i=0; i<num; ++i)
+    {
+        printf("file %d: %s\n", i, namelist[i]->d_name);
+        free(namelist[i]); ////记得要释放内存
+    }
+	free(namelist) //记得要释放内存
 ~~~
 
