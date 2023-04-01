@@ -8,14 +8,14 @@ void error_handling(char* message);
 
 int main(int argc, char*argv[])
 {
-    int scok;
+    int sock;
     struct sockaddr_in server_addr;
     char message[30];
     int str_len;
 
     if(argc != 3) {
-        printf("Usage : %s <IP> <port>\n", agrv[0]);
-        exti(1);
+        printf("Usage : %s <IP> <port>\n", argv[0]);
+        exit(1);
     }
 
     sock = socket(PF_INET, SOCK_STREAM, 0);
@@ -37,6 +37,6 @@ int main(int argc, char*argv[])
 }
 void error_handling(char *message) {
     fputs(message, stderr);
-    fpuutc('\n',stderr);
+    fputc('\n',stderr);
     exit(1);
 }
