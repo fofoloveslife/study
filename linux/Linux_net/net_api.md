@@ -5,10 +5,35 @@ linux网络API
 #include<sys/socket.h>
 int socket(int domain, int type, int protocol);//创建套接字
 //成功返回文件描述符，失败返回-1
+//domain套接字中使用的协议族信息 PF_INET IPV4 PF_INET6 IPV6
+//type 套接字数据传输类型信息 SOCK_STREAM TCP  SOCK_DGRAM UDP
+//protocol 计算机通信中使用的协议信息 大部分情况传递0 除非存在同一协议族中存在多个数据传输方式相同的协议
+int tcp_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);//没有数据边界，write和read的次数可以不一样
+int udp_socket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);//有数据边界，wirte和read的次数一样
+//TCP套接字和UDP套接字不会共用端口号，所以允许重复
+
 
 #include(sys/socket.h)
 int bind(int sockfd, struct sockaddr *myaddr, socklen_t addrlen);//绑定套接字
 //成功返回0，失败返回-1
+struct sockaddr_in
+{
+    sa_fammilu_t   sin_family; //地址族
+    uint16_t       sin_port //端口号 网络字节序
+    struct in_addr sin_addr//32位IP地址 网络字节序
+    char           sin_zero[8];//不使用
+}
+
+struct in_addr
+{
+    In_addr_t s_addr //32位IPV4地址
+}
+
+//大端存储 网络字节序，小端存储 基本上主机字节序
+unsigned short htons(unsigned short);
+unsigned short ntohs(unsigned short);
+unsigned long htonl(unsigned long);
+unsigned long htonl(unsigned long);
 
 #include<sys/socket.h>
 int listen(int sockfd, int backlog)//监听
@@ -59,5 +84,14 @@ int connect(SOCKET s, const struct sockaddr* name, int namelen)
 #include<winsock2.h>
 int closesocket(SOCKET s)//关闭套接字
 //成功返回0 ，失败返回SOCKET_ERR
+    
+#include<winsock2.h>
+int send(SOCKET s， const char * buf, int len, int flags);
+//成功返回传输字节数，失败时返回SOCKET_ERROR
+
+#include<winsock2.h>
+int recv(SOCKET s, const char* buf, int len, int flags);
+//成功返回接受的字节数，失败时返回SOCKET_ERROR 
+//flag 接受数据时用到的多种选项信息
 ~~~
 
