@@ -29,11 +29,25 @@ struct in_addr
     In_addr_t s_addr //32位IPV4地址
 }
 
+//整型数据大小端转换
 //大端存储 网络字节序，小端存储 基本上主机字节序
+#include<arpa/inet.h>
 unsigned short htons(unsigned short);
 unsigned short ntohs(unsigned short);
-unsigned long htonl(unsigned long);
-unsigned long htonl(unsigned long);
+unsigned long htonl(unsigned long); //常数INADDR_ANY自动huo'qu
+unsigned long htonl(unsigned long); 
+
+//点分十进制转网络字节序 即const char* 转换成大端整型
+#include<arpa/inet.h>
+in_addr_t inet_addr(const char* string);
+//返回s_addr，失败返回INADDR_NONE vs2022报错
+
+in_addr_t inet_aton(const char* string, struct in_addr * addr);//利用sockaddr_in结构体中的in_addr结构体
+//成功返回1，失败返回0
+
+char* inet_ntoa(struct in_addr addr);//利用sockaddr_in结构体中的in_addr结构体
+//成功返回字符串地址，失败返回-1
+
 
 #include<sys/socket.h>
 int listen(int sockfd, int backlog)//监听
