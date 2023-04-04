@@ -22,17 +22,14 @@ int main(int argc, char*argv[])
         exit(1);
     }
     
-    server_sock = socket(PF_INET, SOCK_DGRAM, 0);
-    if(server_sock == -1) 
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if(sock == -1) 
         error_handling("socket() error");
 
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family=AF_INET;
     server_addr.sin_addr.s_addr=inet_addr(argv[1]);
     server_addr.sin_port=htons(atoi(argv[2]));
-
-    if(bind(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1) 
-        error_handling("bind() error");
 
     while(1)
     {

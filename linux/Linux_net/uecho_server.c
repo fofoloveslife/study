@@ -39,8 +39,8 @@ int main(int argc, char*argv[])
         client_addr_size = sizeof(client_addr);
         str_len = recvfrom(server_sock, message, BUF_SIZE, 0, 
             (struct sockaddr*)&client_addr, &client_addr_size);
-        sendto(ser_sock, message, str_len, 0,
-            (struct sockaddr*)&client_addr, client_addr_size;)
+        sendto(server_sock, message, str_len, 0,
+            (struct sockaddr*)&client_addr, client_addr_size);
     }
     close(server_sock);
     return 0;
